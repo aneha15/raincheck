@@ -65,7 +65,6 @@ function createDisplayElements(child, parent, obj) {
   parent.appendChild(child);
 }
 
-
 function slideshow(totalPages) {
   let currentPage = 1;
 
@@ -96,64 +95,67 @@ function slideshow(totalPages) {
   return { previousSlide, nextSlide };
 }
 
+function createSlideArrow(dir) {
+  const arrow = document.createElement('div');
+  arrow.className = dir;
+  arrow.innerHTML = dir === 'left' ? '&lt' : '&gt';
+  return arrow;
+}
+
+function createSlideFrame(id) {
+  const frame = document.createElement('div');
+  const dataContainer = document.createElement('div');
+  dataContainer.id = id;
+  frame.className = 'frame';
+
+  return { dataContainer, frame };
+}
+
+function setupSlide(data, info) {
+  const { dataContainer, frame } = createSlideFrame(info.id);
+
+  data.forEach((set) => {
+    const child = document.createElement('div');
+    child.className = info.childClass;
+    createDisplayElements(child, dataContainer, set);
+  });
+
+  const leftArr = createSlideArrow('left');
+  const rightArr = createSlideArrow('right');
+
+  const createSlideshow = slideshow(info.totalPages);
+
+  leftArr.addEventListener('click', () =>
+    createSlideshow.previousSlide(dataContainer),
+  );
+  rightArr.addEventListener('click', () =>
+    createSlideshow.nextSlide(dataContainer),
+  );
+
+  frame.append(leftArr, dataContainer, rightArr);
+
+  return frame;
+}
+
 function displayData(processedData) {
   const currentData = document.createElement('div');
   currentData.id = 'current';
 
   createDisplayElements(currentData, document.body, processedData.current);
 
-  const hourlyData = document.createElement('div');
-  const hourlyDataFrame = document.createElement('div');
-  hourlyData.id = 'hourly';
-  hourlyDataFrame.className = 'frame';
-
-  processedData.hourly.forEach((hour) => {
-    const hourDiv = document.createElement('div');
-    hourDiv.className = 'hour';
-    createDisplayElements(hourDiv, hourlyData, hour);
+  const hourlyData = setupSlide(processedData.hourly, {
+    id: 'hourly',
+    childClass: 'hour',
+    totalPages: 8,
   });
 
-  const leftArrowHourly = document.createElement('div');
-  leftArrowHourly.className = 'left';
-  leftArrowHourly.innerHTML = '&lt';
-  const rightArrowHourly = document.createElement('div');
-  rightArrowHourly.className = 'right';
-  rightArrowHourly.innerHTML = '&gt';
-  hourlyDataFrame.append(leftArrowHourly, hourlyData, rightArrowHourly);
-
-  document.body.appendChild(hourlyDataFrame);
-
-  const hourlySlideshow = slideshow(8); 
-
-  leftArrowHourly.addEventListener('click', () => hourlySlideshow.previousSlide(hourlyData));
-  rightArrowHourly.addEventListener('click', () => hourlySlideshow.nextSlide(hourlyData));
-
-  const dailyData = document.createElement('div');
-  const dailyDataFrame = document.createElement('div');
-  dailyData.id = 'daily';
-  dailyDataFrame.className = 'frame';
-
-  processedData.daily.forEach((day) => {
-    const dayDiv = document.createElement('div');
-    dayDiv.className = 'day';
-    createDisplayElements(dayDiv, dailyData, day);
+  const dailyData = setupSlide(processedData.daily, {
+    id: 'daily',
+    childClass: 'hour',
+    totalPages: 5,
   });
 
-  const leftArrowDaily = document.createElement('div');
-  leftArrowDaily.className = 'left';
-  leftArrowDaily.innerHTML = '&lt';
-  const rightArrowDaily = document.createElement('div');
-  rightArrowDaily.className = 'right';
-  rightArrowDaily.innerHTML = '&gt';
-  dailyDataFrame.append(leftArrowDaily, dailyData, rightArrowDaily);
-
-  document.body.appendChild(dailyDataFrame);
-
-  const dailySlideshow = slideshow(5); 
-
-  leftArrowDaily.addEventListener('click', () => dailySlideshow.previousSlide(dailyData));
-  rightArrowDaily.addEventListener('click', () => dailySlideshow.nextSlide(dailyData));
-
+  document.body.append(currentData, hourlyData, dailyData);
 }
 
 const testData = {

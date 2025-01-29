@@ -1,3 +1,5 @@
+import { format } from 'date-fns';
+
 async function getData(location) {
   try {
     const response = await fetch(
@@ -5,12 +7,43 @@ async function getData(location) {
       { mode: 'cors' },
     );
     const data = await response.json();
-    // console.log(data);
+     console.log(data);
     return data;
   } catch (err) {
     console.log(err);
+    alert('Retry! Enter correct location.');
     return null;
   }
+}
+
+function transformSelectedData(obj) {
+  const changes = {
+    icon: (value) => {
+      const source = require(`./assets/${value}.svg`);
+      return `<img src="${source}" alt="icon" id="icon">`;
+    },
+    datetime: (value) => {
+      return value.substr(value.length - 2) === '00'
+        ? value.slice(0, -3)
+        : format(value, 'iii');
+    },
+    temp: (value) => `${value}°`,
+    precipprob: (value) => `Chance of rain ${value}%`,
+    humidity: (value) => `Humidity ${value}%`,
+    sunrise: (value) => `Sunrise ${value.slice(0, -3)}`,
+    sunset: (value) => `Sunset ${value.slice(0, -3)}`,
+    feelslike: (value) => `Real feel ${value}°`,
+    uvindex: (value) => `UV index ${value}`,
+  };
+
+  return Object.entries(obj).reduce((acc, [key, value]) => {
+    if (key in changes) {
+      acc[key] = changes[key](value);
+    } else {
+      acc[key] = obj[key];
+    }
+    return acc;
+  }, {});
 }
 
 export default async function processData(location = 'dhaka') {
@@ -34,10 +67,19 @@ export default async function processData(location = 'dhaka') {
 
   if (!data) return;
 
+  const selectedData = {
+    current: pickSelectedData(data.currentConditions, selectedCurrentData),
+    hourly: data.days[0].hours.map((hour) =>
+      pickSelectedData(hour, selectedHourlyData),
+    ),
+    daily: data.days.map((day) => pickSelectedData(day, selectedDailyData)),
+  };
+
+  console.log(selectedData);
   const processedData = {
-    current: pick(data.currentConditions, selectedCurrentData),
-    hourly: data.days[0].hours.map((hour) => pick(hour, selectedHourlyData)),
-    daily: data.days.map((day) => pick(day, selectedDailyData)),
+    current: transformSelectedData(selectedData.current),
+    hourly: selectedData.hourly.map((hour) => transformSelectedData(hour)),
+    daily: selectedData.daily.map((day) => transformSelectedData(day)),
   };
 
   console.log(processedData);
@@ -45,7 +87,7 @@ export default async function processData(location = 'dhaka') {
   // return processedData;
 }
 
-function pick(obj, keys) {
+function pickSelectedData(obj, keys) {
   return keys.reduce((acc, key) => {
     acc[key] = obj[key];
     return acc;
@@ -53,15 +95,9 @@ function pick(obj, keys) {
 }
 
 function createDisplayElements(child, parent, obj) {
-  child.innerHTML = Object.entries(obj)
-    .map(
-      ([key, value]) =>
-        ` <div class="container">
-      <div class="key">${key}</div>
-      <div class="value">${value}</div>
-    </div> `,
-    )
-    .join(' | ');
+  child.innerHTML = Object.values(obj)
+    .map((value) => `<div class="value">${value}</div>`)
+    .join('  ');
   parent.appendChild(child);
 }
 
@@ -88,7 +124,6 @@ function slideshow(totalPages) {
     } else {
       currentPage = 1;
     }
-    console.log(container);
     updateSlide(container);
   }
 
@@ -138,8 +173,12 @@ function setupSlide(data, info) {
 }
 
 function displayData(processedData) {
+  const weatherData = document.getElementById('weather-data');
   const currentData = document.createElement('div');
   currentData.id = 'current';
+weatherData.innerHTML = '';
+  // console.log(new Date().toLocaleTimeString(undefined, {hour12: false,   hour: '2-digit',
+  //   minute: '2-digit'}))
 
   createDisplayElements(currentData, document.body, processedData.current);
 
@@ -151,248 +190,10 @@ function displayData(processedData) {
 
   const dailyData = setupSlide(processedData.daily, {
     id: 'daily',
-    childClass: 'hour',
+    childClass: 'day',
     totalPages: 5,
   });
 
-  document.body.append(currentData, hourlyData, dailyData);
+  weatherData.append(currentData, hourlyData, dailyData);
 }
 
-const testData = {
-  current: {
-    conditions: 'Rain, Overcast',
-    feelslike: 45.4,
-    temp: 45.4,
-    humidity: 87.9,
-    icon: 'rain',
-    sunrise: '06:53:11',
-    sunset: '17:18:58',
-    uvindex: 0,
-    precipprob: 100,
-  },
-  hourly: [
-    {
-      datetime: '00:00:00',
-      temp: 47.9,
-      icon: 'rain',
-      uvindex: 0,
-    },
-    {
-      datetime: '01:00:00',
-      temp: 47.4,
-      icon: 'rain',
-      uvindex: 0,
-    },
-    {
-      datetime: '02:00:00',
-      temp: 45.9,
-      icon: 'rain',
-      uvindex: 0,
-    },
-    {
-      datetime: '03:00:00',
-      temp: 45.9,
-      icon: 'rain',
-      uvindex: 0,
-    },
-    {
-      datetime: '04:00:00',
-      temp: 45,
-      icon: 'rain',
-      uvindex: 0,
-    },
-    {
-      datetime: '05:00:00',
-      temp: 45,
-      icon: 'rain',
-      uvindex: 0,
-    },
-    {
-      datetime: '06:00:00',
-      temp: 44,
-      icon: 'rain',
-      uvindex: 0,
-    },
-    {
-      datetime: '07:00:00',
-      temp: 44,
-      icon: 'rain',
-      uvindex: 0,
-    },
-    {
-      datetime: '08:00:00',
-      temp: 45.9,
-      icon: 'rain',
-      uvindex: 1,
-    },
-    {
-      datetime: '09:00:00',
-      temp: 49.9,
-      icon: 'rain',
-      uvindex: 3,
-    },
-    {
-      datetime: '10:00:00',
-      temp: 51,
-      icon: 'partly-cloudy-day',
-      uvindex: 4,
-    },
-    {
-      datetime: '11:00:00',
-      temp: 54.1,
-      icon: 'partly-cloudy-day',
-      uvindex: 6,
-    },
-    {
-      datetime: '12:00:00',
-      temp: 56,
-      icon: 'partly-cloudy-day',
-      uvindex: 6,
-    },
-    {
-      datetime: '13:00:00',
-      temp: 56.9,
-      icon: 'partly-cloudy-day',
-      uvindex: 5,
-    },
-    {
-      datetime: '14:00:00',
-      temp: 58.9,
-      icon: 'partly-cloudy-day',
-      uvindex: 5,
-    },
-    {
-      datetime: '15:00:00',
-      temp: 58,
-      icon: 'partly-cloudy-day',
-      uvindex: 4,
-    },
-    {
-      datetime: '16:00:00',
-      temp: 58,
-      icon: 'partly-cloudy-day',
-      uvindex: 3,
-    },
-    {
-      datetime: '17:00:00',
-      temp: 54.1,
-      icon: 'partly-cloudy-day',
-      uvindex: 0,
-    },
-    {
-      datetime: '18:00:00',
-      temp: 53,
-      icon: 'partly-cloudy-night',
-      uvindex: 0,
-    },
-    {
-      datetime: '19:00:00',
-      temp: 52.1,
-      icon: 'partly-cloudy-night',
-      uvindex: 0,
-    },
-    {
-      datetime: '20:00:00',
-      temp: 49.9,
-      icon: 'partly-cloudy-night',
-      uvindex: 0,
-    },
-    {
-      datetime: '21:00:00',
-      temp: 49,
-      icon: 'partly-cloudy-night',
-      uvindex: 0,
-    },
-    {
-      datetime: '22:00:00',
-      temp: 47,
-      icon: 'partly-cloudy-night',
-      uvindex: 0,
-    },
-    {
-      datetime: '23:00:00',
-      temp: 47,
-      icon: 'partly-cloudy-night',
-      uvindex: 0,
-    },
-  ],
-  daily: [
-    {
-      datetime: '2025-01-27',
-      temp: 50.2,
-      icon: 'rain',
-    },
-    {
-      datetime: '2025-01-28',
-      temp: 49.6,
-      icon: 'partly-cloudy-day',
-    },
-    {
-      datetime: '2025-01-29',
-      temp: 50.7,
-      icon: 'clear-day',
-    },
-    {
-      datetime: '2025-01-30',
-      temp: 50.6,
-      icon: 'partly-cloudy-day',
-    },
-    {
-      datetime: '2025-01-31',
-      temp: 51.5,
-      icon: 'partly-cloudy-day',
-    },
-    {
-      datetime: '2025-02-01',
-      temp: 54.6,
-      icon: 'partly-cloudy-day',
-    },
-    {
-      datetime: '2025-02-02',
-      temp: 57.2,
-      icon: 'partly-cloudy-day',
-    },
-    {
-      datetime: '2025-02-03',
-      temp: 57.7,
-      icon: 'partly-cloudy-day',
-    },
-    {
-      datetime: '2025-02-04',
-      temp: 58.5,
-      icon: 'cloudy',
-    },
-    {
-      datetime: '2025-02-05',
-      temp: 48.3,
-      icon: 'partly-cloudy-day',
-    },
-    {
-      datetime: '2025-02-06',
-      temp: 38.8,
-      icon: 'partly-cloudy-day',
-    },
-    {
-      datetime: '2025-02-07',
-      temp: 40.2,
-      icon: 'clear-day',
-    },
-    {
-      datetime: '2025-02-08',
-      temp: 42.6,
-      icon: 'clear-day',
-    },
-    {
-      datetime: '2025-02-09',
-      temp: 52.1,
-      icon: 'partly-cloudy-day',
-    },
-    {
-      datetime: '2025-02-10',
-      temp: 58.6,
-      icon: 'partly-cloudy-day',
-    },
-  ],
-};
-
-displayData(testData);

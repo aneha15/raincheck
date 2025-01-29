@@ -10,28 +10,75 @@ body {
   align-items: center;
   gap: 50px;
   padding: 50px;
-  border: 1px solid red;
+  background-image: linear-gradient(
+    45deg,
+    hsl(259deg 69% 54%) 0%,
+    hsl(255deg 72% 61%) 8%,
+    hsl(251deg 74% 68%) 17%,
+    hsl(248deg 75% 74%) 25%,
+    hsl(245deg 75% 79%) 33%,
+    hsl(243deg 71% 85%) 42%,
+    hsl(240deg 59% 89%) 50%,
+    hsl(289deg 67% 89%) 58%,
+    hsl(325deg 100% 90%) 67%,
+    hsl(353deg 100% 89%) 75%,
+    hsl(24deg 100% 84%) 83%,
+    hsl(41deg 100% 79%) 92%,
+    hsl(55deg 87% 75%) 100%
+  );
+height: 100vh;
+}
+
+#weather-data {
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
 }
 
 #search-location {
   display: flex;
+  align-items: center;
+  border: 1px solid gray;
+  border-radius: 10px;
+  background-color: antiquewhite;
+}
+
+input {
+  width: 400px;
   height: 50px;
-  width: 250px;
-  border: 1px solid red;
+  border: none;
+  font-size: 18px;
+  text-align: center;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+input:focus {
+  outline: none;
+}
+
+#search-icon {
+  height: 40px;
+  width: 50px;
+  cursor: pointer;
+}
+
+#icon {
+  height: 30px;
+  width: 30px;
 }
 
 #current {
-  border: 1px solid green;
   display: flex;
-  padding: 20px;
+  padding: 30px;
   gap: 25px;
   width: 600px;
   flex-wrap: wrap;
-}
-
-.container {
-  display: flex;
-  gap: 10px;
+  background-color: rgba(200, 86, 136, 0.2);
+  border-radius: 10px;
+  color:  rgba(255, 255, 255, 0.9);
+  font-weight: bold;
+  font-size: 20px;
 }
 
 #hourly,
@@ -41,6 +88,11 @@ body {
 
   position: relative;
   width: max-content;
+  background-color: rgba(180, 86, 200, 0.2);
+ 
+  color:  rgba(255, 255, 255, 0.9);
+  font-weight: bold;
+  font-size: 20px;
 }
 
 #hourly > *,
@@ -51,11 +103,13 @@ body {
 }
 
 .frame {
-  border: 1px solid black;
+
   /* height: 300px; */
   width: 600px;
   overflow: hidden;
   position: relative;
+
+  border-radius: 10px;
 }
 
 .left,
@@ -64,11 +118,12 @@ body {
   top: 50%;
   transform: translateY(-50%);
   cursor: pointer;
-  background-color: rgba(145, 155, 255, 0.7);
+  background-color: rgba(225, 225, 225, 0.8);
+
   padding: 7px 12px;
   border-radius: 50%;
-  color: gray;
-  font-weight: 800;
+  color: rgba(199, 70, 238, 0.9) ;
+  font-weight: 1000;
   z-index: 10;
 }
 

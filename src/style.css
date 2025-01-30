@@ -45,7 +45,7 @@ nav {
   color: rgb(93, 33, 204);
 }
 
-#C:hover, 
+#C:hover,
 #F:hover {
   cursor: pointer;
 }
@@ -101,7 +101,7 @@ input:focus {
   flex-wrap: wrap;
   background-color: rgba(200, 86, 136, 0.2);
   border-radius: 10px;
-  color:  rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.9);
   font-weight: bold;
   font-size: 20px;
 }
@@ -112,8 +112,8 @@ input:focus {
   /* gap: 28px; */
   position: relative;
   width: max-content;
-  background-color:rgba(180, 86, 200, 0.2); 
-  color:  rgba(255, 255, 255, 0.9);
+  background-color: rgba(180, 86, 200, 0.2);
+  color: rgba(255, 255, 255, 0.9);
   font-weight: bold;
   font-size: 20px;
 }
@@ -142,7 +142,7 @@ input:focus {
 
   padding: 7px 12px;
   border-radius: 50%;
-  color: rgba(199, 70, 238, 0.9) ;
+  color: rgba(199, 70, 238, 0.9);
   font-weight: 1000;
   z-index: 10;
 }

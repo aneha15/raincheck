@@ -7,7 +7,6 @@ async function getData(location, unit) {
       { mode: 'cors' },
     );
     const data = await response.json();
-    console.log(data);
     return data;
   } catch (err) {
     console.log(err);
@@ -72,7 +71,6 @@ export default async function processData(location, unit) {
     daily: data.days.map((day) => pickSelectedData(day, selectedDailyData)),
   };
 
-  console.log(selectedData);
   const processedData = {
     resolvedAddress: data.resolvedAddress,
     current: transformSelectedData(selectedData.current),
@@ -80,7 +78,6 @@ export default async function processData(location, unit) {
     daily: selectedData.daily.map((day) => transformSelectedData(day)),
   };
 
-  console.log(processedData);
   displayData(processedData);
 }
 

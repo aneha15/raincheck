@@ -9,8 +9,6 @@ const buttons = (function () {
 
   function searchLocation() {
     const searchIcon = document.getElementById('search-icon');
-
-    // console.log(locationInput.value);
     searchIcon.addEventListener('click', () =>
       processData(locationInput.value, unit),
     );
@@ -29,13 +27,13 @@ const buttons = (function () {
     f.addEventListener('click', () => {
       c.style.cssText = 'color: rgb(157, 81, 160);';
       f.style.cssText = 'color:rgb(93, 33, 204);';
-      if(!locationInput.value) return unit = 'us';
+      if (!locationInput.value) return (unit = 'us');
       processData(locationInput.value, 'us');
     });
     c.addEventListener('click', () => {
       f.style.cssText = 'color: rgb(157, 81, 160);';
       c.style.cssText = 'color:rgb(93, 33, 204);';
-      if(!locationInput.value) return unit = 'uk';
+      if (!locationInput.value) return (unit = 'uk');
       processData(locationInput.value, 'uk');
     });
   }
@@ -45,5 +43,3 @@ const buttons = (function () {
 
 buttons.searchLocation();
 buttons.convertTemp();
-
-// searchLocation();

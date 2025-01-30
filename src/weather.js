@@ -1,13 +1,13 @@
 import { format } from 'date-fns';
 
-async function getData(location) {
+async function getData(location, unit) {
   try {
     const response = await fetch(
-      `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${location}?key=FP27CE6THAUZJUCC95N5GJA6M`,
+      `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${location}?unitGroup=${unit}&key=FP27CE6THAUZJUCC95N5GJA6M`,
       { mode: 'cors' },
     );
     const data = await response.json();
-     console.log(data);
+    console.log(data);
     return data;
   } catch (err) {
     console.log(err);
@@ -27,7 +27,7 @@ function transformSelectedData(obj) {
         ? value.slice(0, -3)
         : format(value, 'iii');
     },
-    temp: (value) => `${value}°`,
+    temp: (value) => `Temperature ${value}°`,
     precipprob: (value) => `Chance of rain ${value}%`,
     humidity: (value) => `Humidity ${value}%`,
     sunrise: (value) => `Sunrise ${value.slice(0, -3)}`,
@@ -46,7 +46,7 @@ function transformSelectedData(obj) {
   }, {});
 }
 
-export default async function processData(location = 'dhaka') {
+export default async function processData(location, unit) {
   const selectedCurrentData = [
     'conditions',
     'feelslike',
@@ -61,10 +61,7 @@ export default async function processData(location = 'dhaka') {
   const selectedHourlyData = ['datetime', 'temp', 'icon', 'uvindex'];
   const selectedDailyData = ['datetime', 'temp', 'icon'];
 
-  const data = await getData(location);
-
-  // console.log(data);
-
+  const data = await getData(location, unit);
   if (!data) return;
 
   const selectedData = {
@@ -77,6 +74,7 @@ export default async function processData(location = 'dhaka') {
 
   console.log(selectedData);
   const processedData = {
+    resolvedAddress: data.resolvedAddress,
     current: transformSelectedData(selectedData.current),
     hourly: selectedData.hourly.map((hour) => transformSelectedData(hour)),
     daily: selectedData.daily.map((day) => transformSelectedData(day)),
@@ -84,7 +82,6 @@ export default async function processData(location = 'dhaka') {
 
   console.log(processedData);
   displayData(processedData);
-  // return processedData;
 }
 
 function pickSelectedData(obj, keys) {
@@ -105,7 +102,7 @@ function slideshow(totalPages) {
   let currentPage = 1;
 
   function updateSlide(container) {
-    const offset = -(currentPage - 1) * 228 * 3;
+    const offset = -(currentPage - 1) * 200 * 3;
     container.style.transform = `translateX(${offset}px)`;
   }
 
@@ -176,11 +173,12 @@ function displayData(processedData) {
   const weatherData = document.getElementById('weather-data');
   const currentData = document.createElement('div');
   currentData.id = 'current';
-weatherData.innerHTML = '';
-  // console.log(new Date().toLocaleTimeString(undefined, {hour12: false,   hour: '2-digit',
-  //   minute: '2-digit'}))
+  weatherData.innerHTML = '';
 
   createDisplayElements(currentData, document.body, processedData.current);
+
+  currentData.firstChild.style.cssText =
+    'font-size: 25px; color: rgb(150, 96, 100); ';
 
   const hourlyData = setupSlide(processedData.hourly, {
     id: 'hourly',
@@ -194,6 +192,20 @@ weatherData.innerHTML = '';
     totalPages: 5,
   });
 
-  weatherData.append(currentData, hourlyData, dailyData);
-}
+  const currentHeading = document.createElement('h1');
+  const hourlyHeading = document.createElement('h1');
+  const dailyHeading = document.createElement('h1');
 
+  currentHeading.textContent = `Current Conditions ~ ${processedData.resolvedAddress}`;
+  hourlyHeading.textContent = "Today's forecast";
+  dailyHeading.textContent = 'Next 15 days forecast';
+
+  weatherData.append(
+    currentHeading,
+    currentData,
+    hourlyHeading,
+    hourlyData,
+    dailyHeading,
+    dailyData,
+  );
+}

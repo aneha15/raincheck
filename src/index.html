@@ -6,13 +6,17 @@
     <title>Raincheck</title>
   </head>
   <body>
-    <form action="get" id="search-location">
-      <input type="text" placeholder="city / country " id="location" />
-      <img src="assets/search.svg" alt="search icon" id="search-icon">
-    </form>
+    <nav>
+      <form action="get" id="search-location">
+        <input type="text" placeholder="city / country " value="Tokyo" id="location" />
+        <img src="assets/search.svg" alt="search icon" id="search-icon" />
+      </form>
+      <div id="temp">
+        <h2 id="C">C</h2>
+        <h2>|</h2>
+        <h2 id="F">F</h2>
+      </div>
+    </nav>
     <div id="weather-data"></div>
   </body>
 </html>
-
-
-
